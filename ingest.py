@@ -65,41 +65,49 @@ def fetch_salaries():
 
 # ── fetch minutes ─────────────────────────────────────────────────────────────
 
+def fetch_minutes():
+    url = "https://www.basketball-reference.com/leagues/NBA_2026_per_game.html"
+    df = pd.read_html(url)[0]
+
+    # Remove repeated header rows
+    df = df[df["Player"] != "Player"].copy()
+
+    traded_players = df[df.Team.str.contains(r"\dTM", na=False)]["Player"].unique()
+    df_clean = df[
+        (df.Team.str.contains(r"\dTM", na=False)) |
+        (~df["Player"].isin(traded_players))
+    ].reset_index(drop=True)
+
+    df_clean = df_clean[["Player", "MP"]].rename(
+        columns={"Player": "player_name", "MP": "min"}
+    )
+    df_clean["min"] = pd.to_numeric(df_clean["min"], errors="coerce")
+    df_clean.dropna(inplace=True)
+    return df_clean
+
 # def fetch_minutes():
+#     headers = {
+#         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+#         "Referer": "https://www.nba.com/",
+#         "Accept": "application/json, text/plain, */*",
+#         "Accept-Language": "en-US,en;q=0.9",
+#         "Origin": "https://www.nba.com",
+#         "Connection": "keep-alive",
+#     }
+
 #     league_stats = leaguedashplayerstats.LeagueDashPlayerStats(
 #         measure_type_detailed_defense="Advanced",
-#         per_mode_detailed="PerGame"
+#         per_mode_detailed="PerGame",
+#         timeout=60,
+#         headers=headers
 #     )
+
 #     stat_df = league_stats.league_dash_player_stats.get_data_frame()
 #     minutes_df = (
 #         stat_df[["PLAYER_NAME", "MIN"]]
 #         .rename(columns={"PLAYER_NAME": "player_name", "MIN": "min"})
 #     )
 #     return minutes_df
-
-def fetch_minutes():
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Referer": "https://www.nba.com/",
-        "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Origin": "https://www.nba.com",
-        "Connection": "keep-alive",
-    }
-
-    league_stats = leaguedashplayerstats.LeagueDashPlayerStats(
-        measure_type_detailed_defense="Advanced",
-        per_mode_detailed="PerGame",
-        timeout=60,
-        headers=headers
-    )
-
-    stat_df = league_stats.league_dash_player_stats.get_data_frame()
-    minutes_df = (
-        stat_df[["PLAYER_NAME", "MIN"]]
-        .rename(columns={"PLAYER_NAME": "player_name", "MIN": "min"})
-    )
-    return minutes_df
 
 # ── run pipeline ──────────────────────────────────────────────────────────────
 
