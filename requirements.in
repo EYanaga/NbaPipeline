@@ -2,6 +2,5 @@ pandas
 sqlalchemy
 psycopg2-binary
 python-dotenv
-nba_api
 pip-tools
 lxml

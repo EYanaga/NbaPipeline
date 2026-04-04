@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
-from nba_api.stats.endpoints import leaguedashplayerstats
+# from nba_api.stats.endpoints import leaguedashplayerstats
 
 load_dotenv()
 
