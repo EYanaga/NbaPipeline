@@ -5,3 +5,4 @@ python-dotenv
 pip-tools
 lxml
 streamlit
+beautifulsoup4

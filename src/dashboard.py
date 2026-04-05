@@ -31,7 +31,10 @@ player = st.selectbox(
 player_row = df[df["player"] == player].iloc[0]
 player_min = player_row["min"]
 
-st.caption("All statistics are for the current NBA Season")
+player_id = player_row["player_id"]
+headshot_url = f"https://www.basketball-reference.com/req/202106291/images/headshots/{player_id}.jpg"
+
+st.image(headshot_url)
 
 st.divider()
 
@@ -47,7 +50,7 @@ advanced = pd.DataFrame({
     "WS":   [player_row["ws"]]
 }).round(2)
 
-st.dataframe(advanced, hide_index=True, use_container_width=True)
+st.dataframe(advanced, hide_index=True, width="stretch")
 
 # ── table 2: financial value ──────────────────────────────────────────────────
 
@@ -67,14 +70,14 @@ value = pd.DataFrame({
 st.dataframe(
     value,
     hide_index=True,
-    use_container_width=True,
+    width="stretch",
     column_config={
         "VORP/$ Rank":        st.column_config.TextColumn(width="small"),
         "WS/$ Rank":          st.column_config.TextColumn(width="small"),
         "Overall Value Rank": st.column_config.TextColumn(width="small"),
     }
 )
-st.caption("Overall Value Rank is computed by averaging a player's VORP/\$ rank and WS/\$ rank across all qualified players (min. 10 minutes per game), then re-ranking that average.")
+st.caption("Overall Value Rank is computed by averaging a player's VORP/\\$ rank and WS/\\$ rank across all qualified players (min. 10 minutes per game), then re-ranking that average.")
 
 # ── table 3: similar minutes comparison ──────────────────────────────────────
 
@@ -131,7 +134,7 @@ selected_display = pd.DataFrame([{
 st.dataframe(
     selected_display,
     hide_index=True,
-    use_container_width=True,
+    width="stretch",
     column_config={
         "Local Value Rank": st.column_config.TextColumn(width="small"),
         "Group Percentile": st.column_config.TextColumn(width="small"),
@@ -158,6 +161,6 @@ comp_display = comp_local[[
 
 comp_display["Salary"] = comp_display["Salary"].apply(lambda x: f"${x:,.0f}")
 
-st.dataframe(comp_display, hide_index=True, use_container_width=True)
+st.dataframe(comp_display, hide_index=True, width="stretch")
 
-st.caption("Data updated daily at 1am PST")
+st.caption("All statistics are for the current NBA season. Data updated daily at 1am PST")

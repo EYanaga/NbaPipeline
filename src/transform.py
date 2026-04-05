@@ -58,7 +58,7 @@ def compute_metrics(advanced, salaries, minutes):
     ).rank(ascending=True).astype(int)
 
     return df[[
-        "player", "salary", "min", "vorp", "bpm", "per", "ws",
+        "player", "player_id", "salary", "min", "vorp", "bpm", "per", "ws",
         "vorp_per_dollar", "ws_per_dollar",
         "vorp_per_dollar_rank", "ws_per_dollar_rank", "overall_value_rank"
     ]]

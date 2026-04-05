@@ -2,7 +2,8 @@ import pandas as pd
 import os
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
-# from nba_api.stats.endpoints import leaguedashplayerstats
+from urllib.request import urlopen, Request
+from bs4 import BeautifulSoup
 
 load_dotenv()
 
@@ -24,21 +25,50 @@ def upsert(df: pd.DataFrame, table: str, conflict_column: str):
 
 def fetch_advanced_stats():
     url = "https://www.basketball-reference.com/leagues/NBA_2026_advanced.html"
-    bbref = pd.read_html(url)[0]
 
-    traded_players = bbref[bbref.Team.str.contains(r"\dTM", na=False)]["Player"].unique()
+    req = Request(url, headers={"User-Agent": "python-urllib/3.11"})
+    html = urlopen(req).read()
+    soup = BeautifulSoup(html, "html.parser")
+    table = soup.find("table", {"id": "advanced"})
+
+    def get_stat(tr, stat):
+        td = tr.find("td", {"data-stat": stat})
+        return td.text.strip() if td else None
+
+    rows = []
+    for tr in table.find("tbody").find_all("tr"):
+        if "thead" in tr.get("class", []):
+            continue
+        td_player = tr.find("td", {"data-stat": "name_display"})
+        if td_player is None:
+            continue
+        a_tag = td_player.find("a")
+        if a_tag is None:
+            continue
+
+        # player_id is in data-append-csv attribute
+        player_id = td_player.get("data-append-csv", "")
+
+        rows.append({
+            "player":    td_player.text.strip(),
+            "player_id": player_id,
+            "team":      get_stat(tr, "team_name_abbr"),
+            "bpm":       get_stat(tr, "bpm"),
+            "vorp":      get_stat(tr, "vorp"),
+            "per":       get_stat(tr, "per"),
+            "ws":        get_stat(tr, "ws"),
+        })
+
+    bbref = pd.DataFrame(rows)
+
+    traded_players = bbref[bbref["team"].str.contains(r"\dTM", na=False)]["player"].unique()
     bbref_clean = bbref[
-        (bbref.Team.str.contains(r"\dTM", na=False)) |
-        (~bbref["Player"].isin(traded_players))
+        (bbref["team"].str.contains(r"\dTM", na=False)) |
+        (~bbref["player"].isin(traded_players))
     ].reset_index(drop=True)
 
-    bbref_clean = bbref_clean[bbref_clean["Player"] != "League Average"]
-
-    bbref_clean = (
-        bbref_clean[["Player", "BPM", "VORP", "PER", "WS"]]
-        .rename(columns=str.lower)          # lowercase to match SQL columns
-        .sort_values("player")
-    )
+    bbref_clean = bbref_clean[bbref_clean["player"] != "League Average"]
+    bbref_clean = bbref_clean[["player", "player_id", "bpm", "vorp", "per", "ws"]].sort_values("player")
 
     for col in ["bpm", "vorp", "per", "ws"]:
         bbref_clean[col] = pd.to_numeric(bbref_clean[col], errors="coerce")
@@ -86,30 +116,6 @@ def fetch_minutes():
     df_clean["min"] = pd.to_numeric(df_clean["min"], errors="coerce")
     df_clean.dropna(inplace=True)
     return df_clean
-
-# def fetch_minutes():
-#     headers = {
-#         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-#         "Referer": "https://www.nba.com/",
-#         "Accept": "application/json, text/plain, */*",
-#         "Accept-Language": "en-US,en;q=0.9",
-#         "Origin": "https://www.nba.com",
-#         "Connection": "keep-alive",
-#     }
-
-#     league_stats = leaguedashplayerstats.LeagueDashPlayerStats(
-#         measure_type_detailed_defense="Advanced",
-#         per_mode_detailed="PerGame",
-#         timeout=60,
-#         headers=headers
-#     )
-
-#     stat_df = league_stats.league_dash_player_stats.get_data_frame()
-#     minutes_df = (
-#         stat_df[["PLAYER_NAME", "MIN"]]
-#         .rename(columns={"PLAYER_NAME": "player_name", "MIN": "min"})
-#     )
-#     return minutes_df
 
 # ── run pipeline ──────────────────────────────────────────────────────────────
 
