@@ -1,12 +1,15 @@
-name: NBA Data Ingestion
+# transform.yml
+name: NBA Data Transform
 
 on:
-  schedule:
-    - cron: '0 8 * * *'
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["NBA Data Ingestion"]   # name must match exactly
+    types:
+      - completed
 
 jobs:
-  ingest:
+  transform:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +27,7 @@ jobs:
       - name: Sync dependencies
         run: pip-sync requirements.txt
 
-      - name: Run ingestion
+      - name: Run transform
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python src/ingest.py
+        run: python src/transform.py
