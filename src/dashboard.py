@@ -15,7 +15,7 @@ def load_metrics():
 # ── page config ───────────────────────────────────────────────────────────────
 
 st.set_page_config(page_title="NBA Player Value", layout="wide")
-st.title("NBA Player Financial Value Dashboard")
+st.title("NBA Player Contract Value Dashboard")
 
 # ── load data ─────────────────────────────────────────────────────────────────
 
@@ -60,10 +60,10 @@ total_global = len(df)
 
 value = pd.DataFrame({
     "Annual Salary":    [f"${player_row['salary']:,.0f}"],
-    "VORP / Dollar":    [round(player_row["vorp_per_dollar"], 8)],
-    "WS / Dollar":      [round(player_row["ws_per_dollar"], 8)],
-    "VORP/$ Rank":      [f"{int(player_row['vorp_per_dollar_rank'])} of {total_global}"],
-    "WS/$ Rank":        [f"{int(player_row['ws_per_dollar_rank'])} of {total_global}"],
+    "VORP / Dollar":    [round(player_row["vorp_per_dollar"], 10)],
+    "WS / Dollar":      [round(player_row["ws_per_dollar"], 10)],
+    "VORP/$ League Rank":      [f"{int(player_row['vorp_per_dollar_rank'])} of {total_global}"],
+    "WS/$ League Rank":        [f"{int(player_row['ws_per_dollar_rank'])} of {total_global}"],
     "Overall Value Rank":   [f"{int(player_row['overall_value_rank'])} of {total_global}"],
 })
 
@@ -124,8 +124,8 @@ selected_display = pd.DataFrame([{
     "WS":                        round(selected_local["ws"], 2),
     "BPM":                       round(selected_local["bpm"], 2),
     "PER":                       round(selected_local["per"], 2),
-    "VORP/$":                    round(selected_local["vorp_per_dollar"], 2),
-    "WS/$":                      round(selected_local["ws_per_dollar"], 2),
+    "VORP/$":                    round(selected_local["vorp_per_dollar"], 10),
+    "WS/$":                      round(selected_local["ws_per_dollar"], 10),
     "Group Rank":                f"{local_rank} of {total_in_group}",
     "Group Percentile":          f"Top {group_percentile}%",
     "League Percentile":         f"Top {league_percentile}%",
