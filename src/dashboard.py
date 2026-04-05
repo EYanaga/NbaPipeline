@@ -54,7 +54,7 @@ st.dataframe(advanced, hide_index=True, width="stretch")
 
 # ── table 2: financial value ──────────────────────────────────────────────────
 
-st.subheader("Financial Value")
+st.subheader("Contract Value")
 
 total_global = len(df)
 
@@ -72,12 +72,12 @@ st.dataframe(
     hide_index=True,
     width="stretch",
     column_config={
-        "VORP/$ Rank":        st.column_config.TextColumn(width="small"),
-        "WS/$ Rank":          st.column_config.TextColumn(width="small"),
+        "VORP/$ League Rank":        st.column_config.TextColumn(width="small"),
+        "WS/$ League Rank":          st.column_config.TextColumn(width="small"),
         "Overall Value Rank": st.column_config.TextColumn(width="small"),
     }
 )
-st.caption("Overall Value Rank is computed by averaging a player's VORP/\\$ rank and WS/\\$ rank across all qualified players (min. 10 minutes per game), then re-ranking that average.")
+st.caption("Overall Value Rank is computed by averaging a player's VORP/\\$ league rank and WS/\\$ league rank across all qualified players (min. 10 minutes per game), then re-ranking that average.")
 
 # ── table 3: similar minutes comparison ──────────────────────────────────────
 
