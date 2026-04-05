@@ -143,6 +143,10 @@ st.dataframe(
 )
 
 # Comparison table
+
+# Select columns to round (all numeric except VORP/$ and WS/$)
+cols_to_round = ["MIN", "Salary", "VORP", "WS", "BPM", "PER"]
+
 comp_display = comp_local[[
     "player", "min", "salary", "vorp", "ws", "bpm", "per",
     "vorp_per_dollar", "ws_per_dollar", "local_value_rank"
@@ -157,7 +161,10 @@ comp_display = comp_local[[
     "vorp_per_dollar":  "VORP/$",
     "ws_per_dollar":    "WS/$",
     "local_value_rank": "Local Value Rank",
-}).sort_values("Local Value Rank").round(2)
+}).sort_values("Local Value Rank")
+
+# Round only the desired columns
+comp_display[cols_to_round] = comp_display[cols_to_round].round(2)
 
 comp_display["Salary"] = comp_display["Salary"].apply(lambda x: f"${x:,.0f}")
 
