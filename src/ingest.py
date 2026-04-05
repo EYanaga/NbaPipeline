@@ -32,6 +32,8 @@ def fetch_advanced_stats():
         (~bbref["Player"].isin(traded_players))
     ].reset_index(drop=True)
 
+    bbref_clean = bbref_clean[bbref_clean["Player"] != "League Average"]
+
     bbref_clean = (
         bbref_clean[["Player", "BPM", "VORP", "PER", "WS"]]
         .rename(columns=str.lower)          # lowercase to match SQL columns
