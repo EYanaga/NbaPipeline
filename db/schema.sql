@@ -34,6 +34,48 @@ CREATE TABLE IF NOT EXISTS minutes (
     updated_at  TIMESTAMP DEFAULT NOW()
 );
 
+-- Game stats per game (traditional box score averages)
+CREATE TABLE IF NOT EXISTS player_game_stats_per_game (
+    id          SERIAL PRIMARY KEY,
+    player      TEXT    NOT NULL,
+    min         NUMERIC,                -- minutes per game
+    pts         NUMERIC,                -- points per game
+    reb         NUMERIC,                -- rebounds per game
+    ast         NUMERIC,                -- assists per game
+    fg3_pct     NUMERIC,                -- 3-point field goal percentage
+    fg2_pct     NUMERIC,                -- 2-point field goal percentage (computed)
+    ft_pct      NUMERIC,                -- free throw percentage
+    updated_at  TIMESTAMP DEFAULT NOW()
+);
+
+-- Game stats per 36 minutes (normalizes for playing time)
+CREATE TABLE IF NOT EXISTS player_game_stats_per_36 (
+    id          SERIAL PRIMARY KEY,
+    player      TEXT    NOT NULL,
+    min         NUMERIC,                -- minutes per game (actual, not per 36)
+    pts         NUMERIC,                -- points per 36 minutes
+    reb         NUMERIC,                -- rebounds per 36 minutes
+    ast         NUMERIC,                -- assists per 36 minutes
+    fg3_pct     NUMERIC,                -- 3-point field goal percentage
+    fg2_pct     NUMERIC,                -- 2-point field goal percentage (computed)
+    ft_pct      NUMERIC,                -- free throw percentage
+    updated_at  TIMESTAMP DEFAULT NOW()
+);
+
+-- Game stats per 100 possessions (pace-adjusted)
+CREATE TABLE IF NOT EXISTS player_game_stats_per_100 (
+    id          SERIAL PRIMARY KEY,
+    player      TEXT    NOT NULL,
+    min         NUMERIC,                -- minutes per game (actual, not per 100)
+    pts         NUMERIC,                -- points per 100 possessions
+    reb         NUMERIC,                -- rebounds per 100 possessions
+    ast         NUMERIC,                -- assists per 100 possessions
+    fg3_pct     NUMERIC,                -- 3-point field goal percentage
+    fg2_pct     NUMERIC,                -- 2-point field goal percentage (computed)
+    ft_pct      NUMERIC,                -- free throw percentage
+    updated_at  TIMESTAMP DEFAULT NOW()
+);
+
 
 -- -----------------------------------------------------------------------------
 -- TRANSFORMED TABLE (populated by transform.py)
@@ -64,5 +106,7 @@ CREATE TABLE IF NOT EXISTS player_metrics (
 -- Qualified players: minimum 10 minutes per game (filtered in transform.py)
 -- Ranks: 1 = best value. overall_value_rank averages vorp_per_dollar_rank
 --        and ws_per_dollar_rank, then re-ranks that average.
+-- 2P% is computed as (FG - 3P) / (FGA - 3PA) since BBREF does not provide it directly.
+-- Per 100 possessions page does not include minutes — min will be NULL for that table.
 -- Headshots: https://www.basketball-reference.com/req/202106291/images/headshots/{player_id}.jpg
 -- -----------------------------------------------------------------------------
