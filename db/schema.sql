@@ -110,3 +110,29 @@ CREATE TABLE IF NOT EXISTS player_metrics (
 -- Per 100 possessions page does not include minutes — min will be NULL for that table.
 -- Headshots: https://www.basketball-reference.com/req/202106291/images/headshots/{player_id}.jpg
 -- -----------------------------------------------------------------------------
+
+
+-- -----------------------------------------------------------------------------
+-- ROW LEVEL SECURITY
+-- -----------------------------------------------------------------------------
+-- RLS is enabled on all tables. Public read is allowed since all data is
+-- publicly available NBA stats. Write operations are restricted to the
+-- direct database connection used by ingest.py and transform.py.
+-- -----------------------------------------------------------------------------
+ALTER TABLE advanced_stats            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE salaries                  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE minutes                   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE player_metrics            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE player_game_stats         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE player_game_stats_per_game ENABLE ROW LEVEL SECURITY;
+ALTER TABLE player_game_stats_per_36  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE player_game_stats_per_100 ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "allow public read" ON advanced_stats            FOR SELECT USING (true);
+CREATE POLICY "allow public read" ON salaries                  FOR SELECT USING (true);
+CREATE POLICY "allow public read" ON minutes                   FOR SELECT USING (true);
+CREATE POLICY "allow public read" ON player_metrics            FOR SELECT USING (true);
+CREATE POLICY "allow public read" ON player_game_stats         FOR SELECT USING (true);
+CREATE POLICY "allow public read" ON player_game_stats_per_game FOR SELECT USING (true);
+CREATE POLICY "allow public read" ON player_game_stats_per_36  FOR SELECT USING (true);
+CREATE POLICY "allow public read" ON player_game_stats_per_100 FOR SELECT USING (true);
