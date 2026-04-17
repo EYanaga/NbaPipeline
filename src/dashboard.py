@@ -194,10 +194,7 @@ st.dataframe(
 
 # Comparison table
 
-# Select columns to round (all numeric except VORP/$ and WS/$)
-cols_to_round = ["MIN", "Salary", "VORP", "WS", "BPM", "PER"]
-
-comp_display = comp_local[[
+comp_display = comp_with_selected[[
     "player", "min", "salary", "vorp", "ws", "bpm", "per",
     "vorp_per_dollar", "ws_per_dollar", "local_value_rank"
 ]].rename(columns={
@@ -214,10 +211,24 @@ comp_display = comp_local[[
 }).sort_values("Local Value Rank")
 
 # Round only the desired columns
+cols_to_round = ["MIN", "Salary", "VORP", "WS", "BPM", "PER"]
 comp_display[cols_to_round] = comp_display[cols_to_round].round(2)
 
 comp_display["Salary"] = comp_display["Salary"].apply(lambda x: f"${x:,.0f}")
 
-st.dataframe(comp_display, hide_index=True, width="stretch")
+# Highlight the selected player
+##ed4585, #2e4057
+def highlight_selected(row, player_name):
+    if row["Player"] == player_name:
+        return ["background-color: #ed4585; color: white"] * len(row)
+    return [""] * len(row)
+
+styled_comp_display = comp_display.style.apply(
+    highlight_selected,
+    player_name=player,
+    axis=1
+)
+
+st.dataframe(styled_comp_display, hide_index=True, width="stretch")
 
 st.caption("All statistics are for the current NBA season. Data updated daily at 1am PST")

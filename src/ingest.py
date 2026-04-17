@@ -92,6 +92,7 @@ def fetch_salaries():
         salary_df["salary"].str.replace(r"[$,]", "", regex=True), errors="coerce"
     )
     salary_df.dropna(inplace=True)
+    salary_df.drop_duplicates(inplace=True)
     salary_df.reset_index(drop=True, inplace=True)
     return salary_df
 
